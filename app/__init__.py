@@ -1,2 +1,1 @@
-
-echo # URL Watcher package
+# URL Watcher package
