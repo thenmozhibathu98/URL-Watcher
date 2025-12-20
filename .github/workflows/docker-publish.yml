@@ -24,20 +24,9 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets. GITHUB_TOKEN }}
 
-      - name: Extract metadata
-        id: meta
-        uses: docker/metadata-action@v4
-        with: 
-          images: ghcr.io/${{ github. repository }}
-          tags: |
-            type=sha,prefix={{branch}}-
-            type=ref,event=branch
-            latest
-
-      - name: Build and push
-        uses: docker/build-push-action@v4
-        with:
-          context: .
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps. meta.outputs.labels }}
+      - name: Build Docker image (verbose)
+        run: |
+          docker build -t ghcr.io/${{ github.repository }}:latest \
+            --progress=plain \
+            --build-arg BUILDKIT_INLINE_CACHE=1 \
+            . 
