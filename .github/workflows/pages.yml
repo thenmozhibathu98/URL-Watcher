@@ -2,7 +2,7 @@ name: Deploy Docs to GitHub Pages
 
 on:
   push: 
-    branches: [ main ]
+    branches:  [ main ]
   workflow_dispatch:
 
 permissions:
@@ -11,7 +11,7 @@ permissions:
   id-token: write
 
 jobs:
-  build:
+  build: 
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -30,9 +30,11 @@ jobs:
         run: mkdocs build -d site
 
       - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
+          name:  github-pages
           path: ./site
+          retention-days: 1
 
   deploy:
     needs: build
@@ -40,7 +42,13 @@ jobs:
       name: github-pages
       url: ${{ steps. deployment.outputs.page_url }}
     runs-on: ubuntu-latest
-    steps: 
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: github-pages
+          path: . 
+
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v2
+        uses: actions/deploy-pages@v4
