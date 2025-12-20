@@ -1,15 +1,15 @@
 name: Build and Publish Docker image
 
 on:
-  push: 
+  push:  
     branches: [ main ]
 
 jobs:
   build-and-push:
-    runs-on:  ubuntu-latest
-    permissions: 
+    runs-on:   ubuntu-latest
+    permissions:  
       contents: read
-      packages:  write
+      packages:   write
 
     steps:
       - uses: actions/checkout@v4
@@ -20,13 +20,24 @@ jobs:
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v2
         with:
-          registry:  ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets. GITHUB_TOKEN }}
+          registry:   ghcr.io
+          username:  ${{ github.actor }}
+          password: ${{ secrets.  GITHUB_TOKEN }}
 
-      - name: Build Docker image (verbose)
-        run: |
-          docker build -t ghcr.io/${{ github.repository }}:latest \
-            --progress=plain \
-            --build-arg BUILDKIT_INLINE_CACHE=1 \
-            . 
+      - name: Extract metadata
+        id:  meta
+        uses: docker/metadata-action@v4
+        with:  
+          images: ghcr.io/${{ github. repository_owner }}/url-watcher
+          tags: |
+            type=sha,prefix={{branch}}-
+            type=ref,event=branch
+            latest
+
+      - name: Build and push
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.  meta. outputs. labels }}
