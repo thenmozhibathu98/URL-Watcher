@@ -45,7 +45,7 @@ async def on_shutdown():
 
 
 @app.post("/urls", response_model=URLRead, status_code=201)
-def create_url(payload: URLCreate, session: Session = Depends(get_session)):
+async def create_url(payload: URLCreate, session: Session = Depends(get_session)):
     url = URL(url=str(payload.url), interval=payload.interval or 60)
     session.add(url)
     session.commit()
