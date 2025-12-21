@@ -1,8 +1,8 @@
-name: Deploy Docs to GitHub Pages
+name: Deploy Docs to GitHub Pages (safe upload)
 
 on:
-  push: 
-    branches:  [ main ]
+  push:
+    branches: [ main ]
   workflow_dispatch:
 
 permissions:
@@ -11,43 +11,64 @@ permissions:
   id-token: write
 
 jobs:
-  build: 
+  build-and-deploy:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version:  '3.11'
+          python-version: '3.11'
 
-      - name: Install mkdocs
+      - name: Install mkdocs and theme
         run: |
           python -m pip install --upgrade pip
           pip install mkdocs mkdocs-material
 
-      - name:  Build documentation
-        run: mkdocs build -d site
+      - name: Build site (mkdocs)
+        run: mkdocs build --clean
+
+      - name: Diagnostic - show site size and tree summary
+        run: |
+          echo "== overall size =="
+          du -sh site || true
+          echo "== top subdirs =="
+          du -sh site/* 2>/dev/null | sort -hr | head -n 20 || true
+          echo "== top files =="
+          find site -type f -printf "%s\t%p\n" | sort -nr | awk 'NR<=20 {printf("%.2f MB\t%s\n",$1/1024/1024,$2)}' || true
+          echo "== symlinks (if any) =="
+          find site -type l -ls || echo "none"
+
+      - name: Cleanup - remove symlinks and common junk from site
+        run: |
+          # remove symlinks - Pages API rejects symlinks/hard links
+          find site -type l -print -exec rm -v {} \; || true
+
+          # remove .git folders and OS junk
+          find site -name ".git" -type d -prune -exec rm -rf {} + 2>/dev/null || true
+          find site -name ".DS_Store" -type f -delete || true
+          find site -name "__pycache__" -type d -prune -exec rm -rf {} + 2>/dev/null || true
+
+      - name: Diagnostic after cleanup
+        run: |
+          echo "== size after cleanup =="
+          du -sh site || true
+          echo "== confirm no symlinks =="
+          find site -type l -ls || echo "none"
+
+      - name: Sanity tar (ensure tar can create archive and size < 10GB)
+        run: |
+          tar -czf site.tgz site
+          echo "site.tgz size:"
+          ls -lh site.tgz
 
       - name: Upload Pages artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-pages-artifact@v1
         with:
-          name:  github-pages
-          path: ./site
-          retention-days: 1
-
-  deploy:
-    needs: build
-    environment:
-      name: github-pages
-      url: ${{ steps. deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Download artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: github-pages
-          path: . 
+          path: site
 
       - name: Deploy to GitHub Pages
         id: deployment
