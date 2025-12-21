@@ -1,10 +1,11 @@
+import os
+os.environ["DISABLE_WATCHER"] = "1"
+
 import asyncio
 import pytest
 from httpx import AsyncClient
 from app.main import app
 from app. db import init_db
-import os
-os.environ["DISABLE_WATCHER"] = "1"
 
 @pytest.fixture(autouse=True)
 def init():
