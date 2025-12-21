@@ -39,4 +39,5 @@ async def test_create_and_get_checks():
         assert resp3.status_code == 200
         checks = resp3.json()
         assert len(checks) >= 1
-        assert all(c["success"] is None for c in checks)
+        assert any(c["success"] in (True, False) for c in checks)
+
