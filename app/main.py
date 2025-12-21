@@ -82,9 +82,10 @@ def get_checks(url_id: int, limit: int = 50, session: Session = Depends(get_sess
 
 
 @app.post("/urls/{url_id}/trigger", status_code=202)
-async def trigger(url_id: int, session:  Session = Depends(get_session)):
-    url_obj = session.get(URL, url_id)
-    if not url_obj:
-        raise HTTPException(status_code=404, detail="URL not found")
-    asyncio.create_task(watcher._do_check_and_persist(url_id, url_obj.url))
-    return {"detail": "Triggered"}
+async def trigger_url(url_id: int):
+    if os.getenv("DISABLE_WATCHER") == "1":
+        return {"status": "trigger skipped (watcher disabled)"}
+
+    watcher.trigger(url_id)
+    return {"status": "triggered"}
+
