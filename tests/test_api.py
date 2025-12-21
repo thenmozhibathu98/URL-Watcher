@@ -22,7 +22,7 @@ def init():
         pass
 
 
-@pytest.mark. asyncio
+@pytest.mark.asyncio
 async def test_create_and_get_checks():
     async with AsyncClient(app=app, base_url="http://test") as client:
         resp = await client.post("/urls", json={"url": "https://httpbin.org/get", "interval": 1})
