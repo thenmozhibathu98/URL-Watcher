@@ -34,6 +34,8 @@ class CheckRead(BaseModel):
 @app.on_event("startup")
 async def on_startup():
     init_db()
+    if os.getenv("DISABLE_WATCHER") == "1":
+        return
     asyncio.create_task(watcher.start())
 
 
