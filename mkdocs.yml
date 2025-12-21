@@ -1,0 +1,5 @@
+site_name: URL Watcher
+theme:
+  name: material
+nav:
+  - Home: index.md
