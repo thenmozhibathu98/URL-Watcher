@@ -1,16 +1,30 @@
 # URL Watcher
 
-![CI](https://github.com/thenmozhibathu98/url-watcher/actions/workflows/ci.yml/badge.svg)
+URL Watcher — an async FastAPI service that monitors URLs, records status & latency, and exposes an API to manage monitors.
 
-A simple, async FastAPI service that monitors URLs on configurable intervals, records HTTP status codes, latency, and errors.  Exposes a REST API to manage monitors and view check history.
+Live demo: https://url-watcher.onrender.com/docs
 
-**Live demo**: (coming soon after deployment)
+Badges
+- Build:[![CI](https://github.com/thenmozhibathu98/URL-Watcher/actions/workflows/ci.yml/badge.svg)]
+- Docs: (https://github.com/thenmozhibathu98/URL-Watcher.git)
 
-## Quick Start (Local)
+Quick start (local)
+1. python -m venv .venv && source .venv/bin/activate
+2. pip install -r requirements.txt
+3. uvicorn app.main:app --reload --port 8000
+4. Open http://localhost:8000/docs for the interactive API docs
 
-### Prerequisites
-- Python 3.11+
-- pip
+Docker
+- Build: docker build -t url-watcher:local .
+- Run: docker run -p 8000:8000 url-watcher:local
+
+What to look for
+- CI runs tests on PRs and pushes.
+- Docker image is published to GHCR on pushes to main.
+- Documentation site is published to GitHub Pages automatically.
+
+Contacts
+- Author: thenmozhibathu98
 
 ### Run locally
 
